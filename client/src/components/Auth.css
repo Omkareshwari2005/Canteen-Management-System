@@ -1,0 +1,61 @@
+.auth-container {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-card {
+  background: white;
+  width: 360px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.auth-title {
+  text-align: center;
+  color: #d97706;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.role-buttons {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.role-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background: #f3f3f3;
+}
+
+.role-buttons .active {
+  background: #d97706;
+  color: white;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #d97706;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}

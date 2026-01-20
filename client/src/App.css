@@ -36,3 +36,36 @@
     transform: rotate(360deg);
   }
 }
+
+/* ===== Background Pages ===== */
+
+.page-bg {
+  min-height: 100vh;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.login-bg {
+  background-image: url("/public/images/login.jpg");
+}
+
+.dashboard-bg {
+  background-image: url("/public/images/dashboard.jpg");
+}
+
+.menu-bg {
+  background-image: url("/public/images/menu.jpg");
+}
+
+.orders-bg {
+  background-image: url("/public/images/orders.jpg");
+}
+
+/* Content Card */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+}

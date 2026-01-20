@@ -1,66 +1,179 @@
-import React from 'react';
+import React, { useContext, useState } from "react";
+import { CanteenContext } from "../context/CanteenContext";
+import "./StudentDashboard.css";
 
-const StudentDashboard = ({ 
-  activeTab, filteredMenu, cart, addToCart, 
-  placeOrder, myOrders, cancelOrder, 
-  category, setCategory, setSearch, msg 
-}) => {
-  
+const categories = ["All", "Breakfast", "Lunch", "Snacks"];
+
+const StudentDashboard = () => {
+  const { menu = [], orders = [], setOrders = () => {} } =
+    useContext(CanteenContext) || {};
+
+  const [activeCat, setActiveCat] = useState("All");
+  const [cart, setCart] = useState([]);
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+
+  const filteredMenu =
+    activeCat === "All"
+      ? menu
+      : menu.filter(item => item.category === activeCat);
+
+  const addToCart = item => {
+    setCart(prev => {
+      const found = prev.find(i => i.id === item.id);
+      if (found) {
+        return prev.map(i =>
+          i.id === item.id ? { ...i, qty: i.qty + 1 } : i
+        );
+      }
+      return [...prev, { ...item, qty: 1 }];
+    });
+  };
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+
+  const placeOrder = () => {
+    if (!cart.length) return alert("Cart is empty");
+
+    const newOrders = cart.map(item => ({
+      id: Date.now() + Math.random(),
+      item: item.name,
+      qty: item.qty,
+      status: "Preparing"
+    }));
+
+    setOrders([...orders, ...newOrders]);
+    alert("Order placed successfully");
+    setCart([]);
+  };
+
+  const handleFeedbackSubmit = () => {
+  if (rating === 0) {
+    alert("Please select a rating");
+    return;
+  }
+
+  if (feedback.trim() === "") {
+    alert("Please write feedback");
+    return;
+  }
+
+  console.log("Feedback submitted:");
+  console.log("Rating:", rating);
+  console.log("Feedback:", feedback);
+
+  alert("Thank you for your feedback!");
+
+  // reset after submit
+  setRating(0);
+  setFeedback("");
+};
+
   return (
-    <div style={{ padding: "20px" }}>
-      {/* MENU TAB */}
-      {activeTab === 'home' && (
-        <div style={{ display: "flex", gap: "20px" }}>
-          <div style={{ flex: 3 }}>
-            <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-              <input placeholder="Search food..." style={{ padding: "7px", borderRadius: "2px", border: "0.4px solid #ccc" }} onChange={(e) => setSearch(e.target.value)} />
-              {["All", "Snacks", "Lunch", "Drinks"].map(cat => (
-                <button key={cat} onClick={() => setCategory(cat)} style={{ padding: "10px", backgroundColor: category === cat ? "#b1c9f5ff" : "#ddd", color: category === cat ? "#fff" : "#000", border: "none", borderRadius: "5px", cursor: "pointer" }}>{cat}</button>
-              ))}
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
-              {filteredMenu.map(item => (
-                <div key={item._id} style={{ backgroundColor: "white", padding: "15px", borderRadius: "10px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}>
-                  <h3>{item.name}</h3>
-                  <p>{item.category}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <b>₹{item.price}</b>
-                    <button onClick={() => addToCart(item)} style={{ backgroundColor: "#9BEC00", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}>Add</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ flex: 1, backgroundColor: "white", padding: "20px", borderRadius: "10px", height: "fit-content" }}>
-            <h2>My Cart</h2>
-            {cart.length === 0 ? <p style={{ color: "#999" }}>Cart is empty</p> : cart.map((item, i) => <div key={i} style={{ borderBottom: "1px solid #eee", padding: "5px" }}>{item.name} - ₹{item.price}</div>)}
-            <h3>Total: ₹{cart.reduce((sum, i) => sum + i.price, 0)}</h3>
-            <button onClick={placeOrder} disabled={cart.length === 0} style={{ width: "100%", padding: "10px", backgroundColor: "#9BEC00", color: "white", border: "none", cursor: cart.length === 0 ? "not-allowed" : "pointer" }}>Place Order</button>
-            {msg && <p style={{ color: "green", fontWeight: "bold" }}>{msg}</p>}
-          </div>
-        </div>
-      )}
+    <div className="student-container">
+      {/* HEADER */}
+      <header className="student-header">
+        <h1>🍽 Campus Canteen</h1>
+        <button
+          className="logout-btn"
+          onClick={() => (window.location.href = "/")}
+        >
+          Logout
+        </button>
+      </header>
 
-      {/* HISTORY TAB */}
-      {activeTab === 'history' && (
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <h2>My Order History</h2>
-          {myOrders.length === 0 ? <p>No past orders.</p> : myOrders.map(order => (
-            <div key={order._id} style={{ backgroundColor: "white", marginBottom: "15px", padding: "20px", borderRadius: "10px", borderLeft: order.status === "Pending" ? "5px solid orange" : "5px solid #9BEC00" }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center" }}>
-                <div>
-                  <h3>Order #{order._id.slice(-4)}</h3>
-                  <span style={{ fontWeight: "bold", color: order.status === "Pending" ? "orange" : "#9BEC00" }}>{order.status === "Pending" ? "🕒 Pending" : "✅ Ready!"}</span>
-                </div>
-                {order.status === "Pending" && (
-                  <button onClick={() => cancelOrder(order._id)} style={{ backgroundColor: "#FF0000", color: "white", border: "none", padding: "8px 12px", borderRadius: "5px", cursor: "pointer" }}>Cancel Order</button>
-                )}
+      {/* CATEGORY */}
+      <div className="category-bar">
+        {categories.map(cat => (
+          <button
+            key={cat}
+            className={cat === activeCat ? "active" : ""}
+            onClick={() => setActiveCat(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* MENU */}
+      <section className="menu-section">
+        <h2 className="section-title">🍕 Menu</h2>
+        <div className="menu-grid">
+          {filteredMenu.map(item => (
+            <div className="food-card" key={item.id}>
+              <img src={item.image} alt={item.name} />
+              <div className="food-info">
+                <h3>{item.name}</h3>
+                <p className="price">₹{item.price}</p>
+                <button onClick={() => addToCart(item)}>
+                  Add to Cart
+                </button>
               </div>
-              <p>Total: ₹{order.total}</p>
             </div>
           ))}
         </div>
-      )}
+      </section>
+
+      {/* CART + ORDERS */}
+      <section className="bottom-grid">
+        <div className="box">
+          <h2>🛒 Cart</h2>
+          {cart.length === 0 && <p>No items in cart</p>}
+          {cart.map((item, i) => (
+            <p key={i}>
+              {item.name} × {item.qty}
+            </p>
+          ))}
+          <h3>Total: ₹{total}</h3>
+          <button className="primary-btn" onClick={placeOrder}>
+            Pay & Order
+          </button>
+        </div>
+
+        <div className="box">
+          <h2>📦 Your Orders</h2>
+          {orders.length === 0 ? (
+            <p>No orders yet</p>
+          ) : (
+            orders.map(order => (
+              <p key={order.id}>
+                {order.item} ({order.qty}){" "}
+                <span className="badge">{order.status}</span>
+              </p>
+            ))
+          )}
+        </div>
+
+        <div className="box">
+  <h2>⭐ Feedback</h2>
+
+  <div className="stars">
+    {[1, 2, 3, 4, 5].map(n => (
+      <span
+        key={n}
+        className={n <= rating ? "star active" : "star"}
+        onClick={() => setRating(n)}
+      >
+        ★
+      </span>
+    ))}
+  </div>
+
+  <textarea
+    placeholder="Write feedback..."
+    value={feedback}
+    onChange={e => setFeedback(e.target.value)}
+  />
+
+  <button className="primary-btn" onClick={handleFeedbackSubmit}>
+    Submit
+  </button>
+</div>
+      </section>
     </div>
   );
 };
